@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
+import { initialData } from "../page";
 import {
   UserOutlined,
   LaptopOutlined,
@@ -21,12 +23,14 @@ import {
 } from "antd";
 
 const { Header, Content, Sider } = Layout;
+export const dynamic = "force-dynamic";
+
 type FormData = {
-  รหัสประเทศ: string | undefined;
+  รหัสประเทศ?: string | undefined;
   "ชื่อประเทศ (ภาษาไทย)": string;
   "ชื่อประเทศ (ภาษาอังกฤษ)": string;
   "ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)": string;
-  ทวีป: string | undefined;
+  ทวีป?: string | undefined;
   สถานะการใช้งาน: boolean;
 };
 
@@ -57,10 +61,13 @@ const items2: MenuProps["items"] = [
   };
 });
 
-const Page: React.FC = () => {
+const UpdatePage: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  const router = useRouter();
+  const { id } = router.query;
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState<FormData>({
     รหัสประเทศ: undefined,
     "ชื่อประเทศ (ภาษาไทย)": "",
@@ -69,7 +76,35 @@ const Page: React.FC = () => {
     ทวีป: undefined,
     สถานะการใช้งาน: false,
   });
-  const router = useRouter();
+  useEffect(() => {
+    const fetchData = async () => {
+      const params = new URLSearchParams(searchParams.toString());
+      const id = params.get("key");
+
+      if (!id) {
+        console.error("ไม่พบค่า key ใน URL parameters");
+        return;
+      }
+
+      const selectedData = initialData.find((data) => data.key === id);
+
+      if (selectedData) {
+        setFormData({
+          รหัสประเทศ: selectedData.code,
+          "ชื่อประเทศ (ภาษาไทย)": selectedData.nameTh,
+          "ชื่อประเทศ (ภาษาอังกฤษ)": selectedData.nameEn,
+          "ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)": selectedData.shortName,
+          ทวีป: selectedData.continent,
+          สถานะการใช้งาน: selectedData.status,
+        });
+      } else {
+        console.error(`ไม่พบข้อมูลที่มี key เป็น ${id} ใน initialData`);
+      }
+    };
+
+    fetchData();
+  }, [searchParams]);
+
   const onSubmit = (values: FormData) => {
     console.log("ข้อมูลประเทศ :", values);
   };
@@ -94,17 +129,16 @@ const Page: React.FC = () => {
         </Sider>
         <Layout className="bg-gray-200">
           <Header className="p-0 bg-gray-100 ">
-            <div className="text-2xl pt-4 pl-10">เพิ่มข้อมูลประเทศ</div>
+            <div className="text-2xl pt-4 pl-10">แก้ไขข้อมูลประเทศ</div>
           </Header>
           <Content className="m-6">
             <div className="p-6 min-h-[360px] bg-white rounded-lg">
               <Row gutter={16}>
                 <Col xs={24} sm={24} md={12} lg={8}>
                   <Form
-                    name="trigger"
+                    name="updateForm"
                     style={{ maxWidth: 600 }}
                     layout="vertical"
-                    autoComplete="off"
                     onFinish={onSubmit}
                     initialValues={formData}
                   >
@@ -121,7 +155,16 @@ const Page: React.FC = () => {
                         },
                       ]}
                     >
-                      <Input placeholder="รหัสประเทศ" />
+                      <Input
+                        placeholder="รหัสประเทศ"
+                        value={formData["รหัสประเทศ"]}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            รหัสประเทศ: e.target.value,
+                          })
+                        }
+                      />
                     </Form.Item>
 
                     <Form.Item
@@ -137,7 +180,16 @@ const Page: React.FC = () => {
                         },
                       ]}
                     >
-                      <Input placeholder="ชื่อประเทศ (ภาษาไทย)" />
+                      <Input
+                        placeholder="ชื่อประเทศ (ภาษาไทย)"
+                        value={formData["ชื่อประเทศ (ภาษาไทย)"]}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            "ชื่อประเทศ (ภาษาไทย)": e.target.value,
+                          })
+                        }
+                      />
                     </Form.Item>
 
                     <Form.Item
@@ -151,7 +203,16 @@ const Page: React.FC = () => {
                         },
                       ]}
                     >
-                      <Input placeholder="ชื่อประเทศ (ภาษาอังกฤษ)" />
+                      <Input
+                        placeholder="ชื่อประเทศ (ภาษาอังกฤษ)"
+                        value={formData["ชื่อประเทศ (ภาษาอังกฤษ)"]}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            "ชื่อประเทศ (ภาษาอังกฤษ)": e.target.value,
+                          })
+                        }
+                      />
                     </Form.Item>
 
                     <Form.Item
@@ -165,7 +226,16 @@ const Page: React.FC = () => {
                         },
                       ]}
                     >
-                      <Input placeholder="ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)" />
+                      <Input
+                        placeholder="ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)"
+                        value={formData["ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)"]}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            "ตัวย่อชื่อประเทศ (ภาษาอังกฤษ)": e.target.value,
+                          })
+                        }
+                      />
                     </Form.Item>
 
                     <Form.Item label="ทวีป" name="ทวีป">
@@ -193,6 +263,7 @@ const Page: React.FC = () => {
                       valuePropName="checked"
                     >
                       <Switch
+                        checked={formData["สถานะการใช้งาน"]}
                         onChange={(checked) =>
                           setFormData({ ...formData, สถานะการใช้งาน: checked })
                         }
@@ -229,4 +300,4 @@ const Page: React.FC = () => {
   );
 };
 
-export default Page;
+export default UpdatePage;

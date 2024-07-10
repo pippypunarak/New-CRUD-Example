@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Table, Button, Space, Row, Col } from "antd";
 import type { TableColumnsType } from "antd";
@@ -25,64 +25,7 @@ interface DataType {
   status: boolean;
 }
 
-const columns: TableColumnsType<DataType> = [
-  {
-    title: "ลำดับที่",
-    dataIndex: "key",
-  },
-  {
-    title: "รหัสประเทศ",
-    dataIndex: "code",
-  },
-  {
-    title: "ชื่อประเทศภาษาไทย",
-    dataIndex: "nameTh",
-    render: (text: string) => <a>{text}</a>,
-  },
-  {
-    title: "ชื่อประเทศภาษาอังกฤษ",
-    dataIndex: "nameEn",
-    render: (text: string) => <a>{text}</a>,
-  },
-  {
-    title: "ตัวย่อชื่อประเทศภาษาอังกฤษ",
-    dataIndex: "shortName",
-    render: (text: string) => <a>{text}</a>,
-  },
-  {
-    title: "ทวีป",
-    dataIndex: "continent",
-    render: (text: string) => <a>{text}</a>,
-  },
-  {
-    title: "สถานะ",
-    dataIndex: "status",
-    align: "center",
-    render: (status: boolean) => (
-      <div>
-        {status ? (
-          <CheckCircleFilled style={{ color: "#1A5319", fontSize: "20px" }} />
-        ) : (
-          <CloseCircleFilled style={{ color: "#FF4D4F", fontSize: "20px" }} />
-        )}
-      </div>
-    ),
-  },
-  {
-    title: "",
-    key: "action",
-    align: "center",
-    render: () => (
-      <Button
-        type="link"
-        icon={<EditOutlined />}
-        style={{ backgroundColor: "#1E2E97", color: "white" }}
-      />
-    ),
-  },
-];
-
-const initialData: DataType[] = [
+export const initialData: DataType[] = [
   {
     key: "1",
     code: "123",
@@ -150,37 +93,90 @@ const rowSelection = {
 };
 
 const Home = () => {
+  const router = useRouter();
   const [searchText, setSearchText] = useState<string>("");
   const [dataSource, setDataSource] = useState<DataType[]>(initialData);
-  const [count, setCount] = useState<number>(initialData.length + 1);
   const [showDetailedSearch, setShowDetailedSearch] = useState<boolean>(false);
-  const router = useRouter();
+
+  // useEffect(() => {
+  //   const search = searchParams.get("search");
+  //   if (search) {
+  //     setSearchText(search);
+  //   }
+  // }, [searchParams]);
+
+  const handleEdit = (key: string) => {
+    router.push(`/home/update/${key}`);
+  };
+
   const handleAdd = () => {
     router.push("/home/create");
   };
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };
-
-  // const handleAdd = () => {
-  //   const newData: DataType = {
-  //     key: count,
-  //     code: "000",
-  //     nameTh: `ประเทศ ${count}`,
-  //     nameEn: `Country ${count}`,
-  //     shortName: `C${count}`,
-  //     continent: "ทวีป",
-  //     status: false,
-  //   };
-  //   setDataSource([...dataSource, newData]);
-  //   setCount(count + 1);
-  // };
 
   const filteredData = dataSource.filter(
     (item) =>
       item.nameTh.includes(searchText) || item.nameEn.includes(searchText)
   );
+  const columns: TableColumnsType<DataType> = [
+    {
+      title: "ลำดับที่",
+      dataIndex: "key",
+    },
+    {
+      title: "รหัสประเทศ",
+      dataIndex: "code",
+    },
+    {
+      title: "ชื่อประเทศภาษาไทย",
+      dataIndex: "nameTh",
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: "ชื่อประเทศภาษาอังกฤษ",
+      dataIndex: "nameEn",
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: "ตัวย่อชื่อประเทศภาษาอังกฤษ",
+      dataIndex: "shortName",
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: "ทวีป",
+      dataIndex: "continent",
+      render: (text: string) => <a>{text}</a>,
+    },
+    {
+      title: "สถานะ",
+      dataIndex: "status",
+      align: "center",
+      render: (status: boolean) => (
+        <div>
+          {status ? (
+            <CheckCircleFilled style={{ color: "#1A5319", fontSize: "20px" }} />
+          ) : (
+            <CloseCircleFilled style={{ color: "#FF4D4F", fontSize: "20px" }} />
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "",
+      key: "action",
+      align: "center",
+      render: (text: string, record: DataType) => (
+        <Button
+          type="link"
+          onClick={() => handleEdit(record.key as string)}
+          icon={<EditOutlined />}
+          style={{ backgroundColor: "#1E2E97", color: "white" }}
+        />
+      ),
+    },
+  ];
 
   return (
     <div className="p-6">
