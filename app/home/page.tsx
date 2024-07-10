@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Table, Button, Space, Row, Col } from "antd";
 import type { TableColumnsType } from "antd";
