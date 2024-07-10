@@ -16,7 +16,7 @@ const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
   console.log(info?.source, value);
 
 interface DataType {
-  key: React.Key;
+  key: string;
   code: string;
   nameTh: string;
   nameEn: string;
@@ -97,13 +97,6 @@ const Home = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [dataSource, setDataSource] = useState<DataType[]>(initialData);
   const [showDetailedSearch, setShowDetailedSearch] = useState<boolean>(false);
-
-  // useEffect(() => {
-  //   const search = searchParams.get("search");
-  //   if (search) {
-  //     setSearchText(search);
-  //   }
-  // }, [searchParams]);
 
   const handleEdit = (key: string) => {
     router.push(`/home/update/${key}`);
